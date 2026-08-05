@@ -4,7 +4,7 @@ We are building an AI-powered interview practice coach for a hackathon.
 
 The coach is designed for anyone who wants more specific and structured interview preparation than a generic conversation with an LLM. It uses the candidate's CV, target job description and interview preferences to create a personalised mock interview and practical feedback.
 
-!(readmepics/
+!(readmepics/Screenshot 2026-08-05 at 18.33.24.png)
 !(readmepics/
 
 ## Features
