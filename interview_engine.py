@@ -15,6 +15,12 @@ from prompts import (
 
 load_dotenv()
 
+QUESTION_MODEL = os.getenv(
+    "OPENAI_QUESTION_MODEL",
+    os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+)
+FOLLOW_UP_MODEL = os.getenv("OPENAI_FOLLOWUP_MODEL", "gpt-4o-mini")
+
 
 class InterviewEngineError(Exception):
     """Raised when the interview engine cannot generate a valid result."""
@@ -64,7 +70,7 @@ def generate_questions(
             technical or mixed.
 
         number_of_questions:
-            Number of main questions to generate. Must be between 4 and 6.
+            Number of main questions to generate. Must be between 1 and 19.
 
         client:
             Optional OpenAI client. This makes testing easier because a
@@ -104,7 +110,7 @@ def generate_questions(
 
     try:
         response = client.responses.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
+            model=QUESTION_MODEL,
             input=prompt,
         )
     except Exception as exc:
@@ -327,6 +333,63 @@ def complete_current_line(
     ):
         session["interview_complete"] = True
 
+
+def skip_current_question(
+    session: dict[str, Any],
+    question_type: str = "main",
+    follow_up_question: str | None = None,
+) -> dict[str, Any]:
+    """Record a blank response and move to the next main question."""
+    current_line = get_current_line(session)
+    if current_line is None:
+        return {
+            "action": "interview_complete",
+            "interview_complete": True,
+        }
+
+    if question_type == "main":
+        question = current_line["main_question"]["question"]
+        follow_up_number = None
+    elif question_type == "follow_up":
+        if not follow_up_question:
+            raise ValueError(
+                "follow_up_question is required when skipping a follow-up."
+            )
+        question = follow_up_question
+        follow_up_number = current_line["follow_up_count"]
+    else:
+        raise ValueError(
+            "question_type must be either 'main' or 'follow_up'."
+        )
+
+    response = {
+        "question_type": question_type,
+        "question": question,
+        "answer": "",
+        "skipped": True,
+    }
+    if follow_up_number is not None:
+        response["follow_up_number"] = follow_up_number
+    current_line["responses"].append(response)
+
+    complete_current_line(session)
+    if session["interview_complete"]:
+        return {
+            "action": "interview_complete",
+            "line_complete": True,
+            "interview_complete": True,
+            "skipped": True,
+        }
+
+    next_line = get_current_line(session)
+    return {
+        "action": "ask_main_question",
+        "next_question": next_line["main_question"],
+        "line_complete": True,
+        "interview_complete": False,
+        "skipped": True,
+    }
+
 def process_candidate_answer(
     session: dict[str, Any],
     answer: str,
@@ -372,20 +435,26 @@ def process_candidate_answer(
     candidate_context = session["candidate_context"]
 
     previous_follow_ups = get_previous_follow_ups(current_line)
+    original_follow_up_count = current_line["follow_up_count"]
     current_line["follow_up_count"] = len(previous_follow_ups)
 
-    follow_up_result = evaluate_follow_up_need(
-        main_question=current_line["main_question"]["question"],
-        candidate_answer=answer,
-        cv_text=candidate_context["cv_text"],
-        job_description=candidate_context["job_description"],
-        role=candidate_context["role"],
-        interview_type=candidate_context["interview_type"],
-        previous_follow_ups=previous_follow_ups,
-        follow_up_count=current_line["follow_up_count"],
-        maximum_follow_ups=3,
-        client=client,
-    )
+    try:
+        follow_up_result = evaluate_follow_up_need(
+            main_question=current_line["main_question"]["question"],
+            candidate_answer=answer,
+            cv_text=candidate_context["cv_text"],
+            job_description=candidate_context["job_description"],
+            role=candidate_context["role"],
+            interview_type=candidate_context["interview_type"],
+            previous_follow_ups=previous_follow_ups,
+            follow_up_count=current_line["follow_up_count"],
+            maximum_follow_ups=3,
+            client=client,
+        )
+    except Exception:
+        current_line["responses"].pop()
+        current_line["follow_up_count"] = original_follow_up_count
+        raise
 
     if follow_up_result["ask_follow_up"]:
         generated_question = follow_up_result["follow_up_question"]
@@ -594,7 +663,7 @@ def evaluate_follow_up_need(
 
     try:
         response = client.responses.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
+            model=FOLLOW_UP_MODEL,
             input=prompt,
         )
     except Exception as exc:
@@ -636,9 +705,12 @@ def validate_question_inputs(
         missing = ", ".join(missing_fields)
         raise ValueError(f"Missing required information: {missing}")
 
-    if not 4 <= number_of_questions <= 6:
+    if isinstance(number_of_questions, bool) or not isinstance(number_of_questions, int):
+        raise ValueError("number_of_questions must be a whole number.")
+
+    if not 1 <= number_of_questions <= 19:
         raise ValueError(
-            "number_of_questions must be between 4 and 6."
+            "number_of_questions must be above 0 and below 20."
         )
 
 def validate_follow_up_inputs(
@@ -912,3 +984,4 @@ def has_more_questions(
     Check whether another main question remains.
     """
     return current_index + 1 < len(questions)
+
