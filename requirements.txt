@@ -1,5 +1,4 @@
-openai
-python-dotenv
 streamlit==1.61.0
-starlette==0.52.1
 pypdf==6.14.2
+openai>=1.109.0,<3
+python-dotenv>=1.1.0,<2
