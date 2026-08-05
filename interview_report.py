@@ -16,11 +16,16 @@ USAGE:  from interview_report import process_interview
 """
 
 import json
+import os
 import re
+
+from dotenv import load_dotenv
 from openai import OpenAI
 
-client = OpenAI()
-MODEL = "gpt-4o-mini"
+
+load_dotenv()
+
+MODEL = os.getenv("OPENAI_REPORT_MODEL", "gpt-4o-mini")
 
 CATEGORIES = ["relevance", "evidence", "structure", "role_alignment"]
 WEIGHTS = {"relevance": 0.30, "evidence": 0.30, "structure": 0.20, "role_alignment": 0.20}
@@ -37,6 +42,13 @@ def _parse_json(raw: str):
 
 def _round1(x):
     return round(x, 1)
+
+
+def get_openai_client() -> OpenAI:
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY was not found. Add it to your .env file.")
+    return OpenAI(api_key=api_key)
 
 
 # ---------------------------------------------------------------------------
@@ -79,7 +91,16 @@ Respond with ONLY this JSON:
 }"""
 
 
-def _score_answer(question, answer, cv_text, job_description, role, company, category):
+def _score_answer(
+    question,
+    answer,
+    cv_text,
+    job_description,
+    role,
+    company,
+    category,
+    client=None,
+):
     if answer is None or str(answer).strip() == "":
         return {
             "scores": {c: 1 for c in CATEGORIES},
@@ -103,6 +124,8 @@ QUESTION:
 ANSWER:
 {answer}"""
     try:
+        if client is None:
+            client = get_openai_client()
         raw = client.chat.completions.create(
             model=MODEL,
             messages=[
@@ -123,11 +146,41 @@ ANSWER:
         }
 
 
+def evaluate_response(
+    question: str,
+    answer: str,
+    cv_text: str,
+    job_description: str,
+    role: str,
+    company: str,
+    category: str = "General",
+    client: OpenAI | None = None,
+) -> dict:
+    """Score one response for optional in-interview feedback."""
+    evaluation = _score_answer(
+        question,
+        answer,
+        cv_text,
+        job_description,
+        role,
+        company,
+        category,
+        client=client,
+    )
+    return {
+        "scores": {c: evaluation["scores"].get(c, 0) for c in CATEGORIES},
+        "overall_score": evaluation.get("overall_score", 0),
+        "strengths": evaluation.get("strengths", []),
+        "improvements": evaluation.get("improvements", []),
+        "missing_information": evaluation.get("missing_information", []),
+    }
+
+
 # ---------------------------------------------------------------------------
 # STEP 2 — read Person 1's structure and score everything
 # ---------------------------------------------------------------------------
 
-def _score_all(payload: dict):
+def _score_all(payload: dict, client=None):
     ctx = payload.get("candidate_context", {})
     cv = ctx.get("cv_text", "")
     jd = ctx.get("job_description", "")
@@ -141,6 +194,7 @@ def _score_all(payload: dict):
             ev = _score_answer(
                 resp.get("question", ""), resp.get("answer", ""),
                 cv, jd, role, company, category,
+                client=client,
             )
             scored.append({
                 "line_id": line.get("line_id"),
@@ -219,7 +273,7 @@ Respond with ONLY this JSON:
 }"""
 
 
-def _write_prose(scored, ctx, metrics):
+def _write_prose(scored, ctx, metrics, client=None):
     user_prompt = f"""CANDIDATE CV:
 {ctx['cv']}
 
@@ -231,9 +285,11 @@ overall: {metrics['overall_score']}
 category_averages: {json.dumps(metrics['category_averages'])}
 weakest line: {json.dumps(metrics.get('weakest_line'))}
 
-ALL SCORED RESPONSES:
+    ALL SCORED RESPONSES:
 {json.dumps(scored, indent=2)}"""
     try:
+        if client is None:
+            client = get_openai_client()
         raw = client.chat.completions.create(
             model=MODEL,
             messages=[
@@ -257,14 +313,14 @@ ALL SCORED RESPONSES:
 # PUBLIC — one call Person 1 uses
 # ---------------------------------------------------------------------------
 
-def process_interview(payload: dict) -> dict:
+def process_interview(payload: dict, client: OpenAI | None = None) -> dict:
     """
     Takes Person 1's interview_output.json (raw Q&As, no scores).
     Returns: {"per_response": [...], "final_report": {...}}
     """
-    scored, ctx = _score_all(payload)
+    scored, ctx = _score_all(payload, client=client)
     metrics = _compute_metrics(scored, payload)
-    prose = _write_prose(scored, ctx, metrics)
+    prose = _write_prose(scored, ctx, metrics, client=client)
 
     final_report = {
         "overall_score": metrics["overall_score"],
