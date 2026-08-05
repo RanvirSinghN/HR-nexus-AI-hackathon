@@ -2,6 +2,8 @@
 
 We are building an AI-powered interview practice coach for a hackathon.
 
+This coach is for anyone who wants ai powered help in a more specific manner than using a generic LLM to prepare for an interview.
+
 The application allows a user to:
 
 * Upload or paste their CV
