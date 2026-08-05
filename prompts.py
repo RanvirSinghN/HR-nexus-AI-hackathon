@@ -164,20 +164,36 @@ information about:
 Do not ask a follow-up merely because more detail could theoretically
 be provided.
 
-Ask a follow-up only when an important gap prevents the answer from
-being convincing or properly assessed.
+Ask a follow-up only when one important unresolved gap prevents the
+answer from being reasonably assessed.
+
+A line does not need to cover every possible assessment category.
+Stop the line when the original question has been answered with enough
+specific evidence.
+
+Do not continue asking questions merely to obtain every possible detail.
+Prefer completing the line over asking a weak, repetitive or marginal
+follow-up.
 
 The follow-up question must:
 
-- Target the most important missing information
+- Target only the single most important missing detail
+- Ask one thing only
 - Be concise and natural
-- Avoid repeating a question already asked
-- Ask only one clear question
-- Relate directly to the current line of questioning
+- Usually contain no more than 20 words
+- Avoid joining multiple requests with "and"
+- Avoid repeating any earlier question
+- Take account of all previous answers in this line of questioning
+- Not ask for information the candidate has already provided
+- Relate directly to the original question
 - Not provide feedback or suggest the answer
 
 If {maximum_follow_ups} follow-up questions have already been asked,
 you must not generate another follow-up.
+
+The missing_information list must contain no more than three items.
+Only include the most important unresolved gaps.
+Do not list every assessment category.
 
 Return valid JSON only in exactly this structure:
 

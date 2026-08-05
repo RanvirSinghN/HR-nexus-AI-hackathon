@@ -2,6 +2,7 @@
 import json
 import os
 from typing import Any
+from uuid import uuid4
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -120,6 +121,387 @@ def generate_questions(
     )
 
     return questions
+
+def create_interview_session(
+    questions: list[dict[str, Any]],
+    cv_text: str,
+    job_description: str,
+    company: str,
+    role: str,
+    interview_type: str,
+) -> dict[str, Any]:
+    """
+    Create the initial interview session after generating the questions.
+    """
+    if not questions:
+        raise ValueError("At least one interview question is required.")
+
+    lines_of_questioning = []
+
+    for question in questions:
+        lines_of_questioning.append(
+            {
+                "line_id": question["id"],
+                "category": question["category"],
+                "main_question": question,
+                "responses": [],
+                "follow_up_count": 0,
+                "line_complete": False,
+            }
+        )
+
+    return {
+        "session_id": str(uuid4()),
+        "candidate_context": {
+            "cv_text": cv_text,
+            "job_description": job_description,
+            "company": company,
+            "role": role,
+            "interview_type": interview_type,
+        },
+        "questions": questions,
+        "current_question_index": 0,
+        "lines_of_questioning": lines_of_questioning,
+        "interview_complete": False,
+    }
+
+def get_current_line(
+    session: dict[str, Any],
+) -> dict[str, Any] | None:
+    """
+    Return the active line of questioning.
+    """
+    current_index = session["current_question_index"]
+    lines = session["lines_of_questioning"]
+
+    if current_index >= len(lines):
+        return None
+
+    return lines[current_index]
+
+def record_response(
+    session: dict[str, Any],
+    question: str,
+    answer: str,
+    question_type: str,
+    follow_up_number: int | None = None,
+) -> dict[str, Any]:
+    """
+    Add a candidate response to the current line of questioning.
+    """
+    if not answer or not answer.strip():
+        raise ValueError("Candidate answer cannot be empty.")
+
+    if question_type not in {"main", "follow_up"}:
+        raise ValueError(
+            "question_type must be either 'main' or 'follow_up'."
+        )
+
+    current_line = get_current_line(session)
+
+    if current_line is None:
+        raise InterviewEngineError(
+            "There is no active line of questioning."
+        )
+
+    response = {
+        "question_type": question_type,
+        "question": question,
+        "answer": answer,
+    }
+
+    if question_type == "follow_up":
+        if follow_up_number is None:
+            raise ValueError(
+                "follow_up_number is required for a follow-up response."
+            )
+
+        response["follow_up_number"] = follow_up_number
+
+    current_line["responses"].append(response)
+
+    return response
+
+def get_previous_follow_ups(
+    line: dict[str, Any],
+) -> list[dict[str, str]]:
+    """
+    Return previous follow-up questions and answers from a line.
+    """
+    return [
+        {
+            "question": response["question"],
+            "answer": response["answer"],
+        }
+        for response in line["responses"]
+        if response["question_type"] == "follow_up"
+    ]
+
+def normalise_question_text(question: str) -> set[str]:
+    """
+    Convert a question into a simplified set of meaningful words.
+    """
+    ignored_words = {
+        "a",
+        "an",
+        "and",
+        "are",
+        "can",
+        "could",
+        "did",
+        "do",
+        "for",
+        "how",
+        "in",
+        "is",
+        "of",
+        "on",
+        "or",
+        "the",
+        "to",
+        "was",
+        "were",
+        "what",
+        "which",
+        "with",
+        "you",
+        "your",
+    }
+
+    cleaned_text = "".join(
+        character.lower()
+        if character.isalnum() or character.isspace()
+        else " "
+        for character in question
+    )
+
+    return {
+        word
+        for word in cleaned_text.split()
+        if word not in ignored_words
+    }
+
+
+def questions_are_too_similar(
+    first_question: str,
+    second_question: str,
+    similarity_threshold: float = 0.6,
+) -> bool:
+    """
+    Check whether two questions contain substantially similar wording.
+    """
+    first_words = normalise_question_text(first_question)
+    second_words = normalise_question_text(second_question)
+
+    if not first_words or not second_words:
+        return False
+
+    overlap = first_words & second_words
+    smaller_word_count = min(
+        len(first_words),
+        len(second_words),
+    )
+
+    similarity = len(overlap) / smaller_word_count
+
+    return similarity >= similarity_threshold
+
+def complete_current_line(
+    session: dict[str, Any],
+) -> None:
+    """
+    Mark the current line as complete and move to the next main question.
+    """
+    current_line = get_current_line(session)
+
+    if current_line is None:
+        raise InterviewEngineError(
+            "There is no active line to complete."
+        )
+
+    current_line["line_complete"] = True
+    session["current_question_index"] += 1
+
+    if session["current_question_index"] >= len(
+        session["lines_of_questioning"]
+    ):
+        session["interview_complete"] = True
+
+def process_candidate_answer(
+    session: dict[str, Any],
+    answer: str,
+    question_type: str = "main",
+    follow_up_question: str | None = None,
+    client: OpenAI | None = None,
+) -> dict[str, Any]:
+    """
+    Record an answer and decide what the interview should do next.
+    """
+    current_line = get_current_line(session)
+
+    if current_line is None:
+        return {
+            "action": "interview_complete",
+            "interview_complete": True,
+        }
+
+    if question_type == "main":
+        current_question = current_line["main_question"]["question"]
+        follow_up_number = None
+    elif question_type == "follow_up":
+        if not follow_up_question:
+            raise ValueError(
+                "follow_up_question is required for a follow-up answer."
+            )
+
+        current_question = follow_up_question
+        follow_up_number = current_line["follow_up_count"]
+    else:
+        raise ValueError(
+            "question_type must be either 'main' or 'follow_up'."
+        )
+
+    record_response(
+        session=session,
+        question=current_question,
+        answer=answer,
+        question_type=question_type,
+        follow_up_number=follow_up_number,
+    )
+
+    candidate_context = session["candidate_context"]
+
+    previous_follow_ups = get_previous_follow_ups(current_line)
+    current_line["follow_up_count"] = len(previous_follow_ups)
+
+    follow_up_result = evaluate_follow_up_need(
+        main_question=current_line["main_question"]["question"],
+        candidate_answer=answer,
+        cv_text=candidate_context["cv_text"],
+        job_description=candidate_context["job_description"],
+        role=candidate_context["role"],
+        interview_type=candidate_context["interview_type"],
+        previous_follow_ups=previous_follow_ups,
+        follow_up_count=current_line["follow_up_count"],
+        maximum_follow_ups=3,
+        client=client,
+    )
+
+    if follow_up_result["ask_follow_up"]:
+        generated_question = follow_up_result["follow_up_question"]
+
+        previous_questions = [
+            item["question"]
+            for item in previous_follow_ups
+        ]
+
+        repeated_question = any(
+            questions_are_too_similar(
+                generated_question,
+                previous_question,
+            )
+            for previous_question in previous_questions
+        )
+
+        if repeated_question:
+            complete_current_line(session)
+
+            if session["interview_complete"]:
+                return {
+                    "action": "interview_complete",
+                    "line_complete": True,
+                    "interview_complete": True,
+                    "completion_reason": (
+                        "The proposed follow-up was too similar to an "
+                        "earlier question."
+                    ),
+                }
+
+            next_line = get_current_line(session)
+
+            return {
+                "action": "ask_main_question",
+                "next_question": next_line["main_question"],
+                "line_complete": True,
+                "interview_complete": False,
+                "completion_reason": (
+                    "The proposed follow-up was too similar to an "
+                    "earlier question."
+                ),
+            }
+
+        current_line["follow_up_count"] += 1
+
+        return {
+            "action": "ask_follow_up",
+            "follow_up_question": generated_question,
+            "missing_information": follow_up_result[
+                "missing_information"
+            ],
+            "reason": follow_up_result["reason"],
+            "follow_up_count": current_line["follow_up_count"],
+            "line_complete": False,
+            "interview_complete": False,
+        }
+
+    complete_current_line(session)
+
+    if session["interview_complete"]:
+        return {
+            "action": "interview_complete",
+            "line_complete": True,
+            "interview_complete": True,
+        }
+
+    next_line = get_current_line(session)
+
+    return {
+        "action": "ask_main_question",
+        "next_question": next_line["main_question"],
+        "line_complete": True,
+        "interview_complete": False,
+    }
+
+def build_interview_output(
+    session: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Produce the structured output for the feedback mechanism.
+    """
+    completed_main_questions = sum(
+        1
+        for line in session["lines_of_questioning"]
+        if line["line_complete"]
+    )
+
+    total_follow_ups = sum(
+        line["follow_up_count"]
+        for line in session["lines_of_questioning"]
+    )
+
+    total_responses = sum(
+        len(line["responses"])
+        for line in session["lines_of_questioning"]
+    )
+
+    return {
+        "session_id": session["session_id"],
+        "candidate_context": session["candidate_context"],
+        "interview_status": (
+            "completed"
+            if session["interview_complete"]
+            else "in_progress"
+        ),
+        "lines_of_questioning": session[
+            "lines_of_questioning"
+        ],
+        "summary": {
+            "completed_main_questions": completed_main_questions,
+            "total_main_questions": len(session["questions"]),
+            "total_follow_up_questions": total_follow_ups,
+            "total_responses": total_responses,
+        },
+    }
 
 def evaluate_follow_up_need(
     main_question: str,
