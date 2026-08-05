@@ -13,6 +13,7 @@ class InterviewResponse(TypedDict, total=False):
     question: str
     answer: str
     follow_up_number: int
+    skipped: bool
 
 
 class InterviewLine(TypedDict):
@@ -31,3 +32,4 @@ class InterviewSession(TypedDict):
     current_question_index: int
     lines_of_questioning: list[InterviewLine]
     interview_complete: bool
+
