@@ -9,8 +9,10 @@ The application allows a user to:
 * Upload or paste their CV
 * Upload or paste a job description
 * Enter the company name, role title and interview type
-* Receive tailored interview questions
-* Answer questions one at a time
+* Select number of main questions and question type
+* Receive tailored interview questions from selected preferences 
+* Receive follow up questins baded on inputted cv and job desc
+* Answer questions one at a time, with option to skip or end interview 
 * Receive relevant follow-up questions
 * Receive feedback after each line of questioning
 * Receive a final overall interview performance report
