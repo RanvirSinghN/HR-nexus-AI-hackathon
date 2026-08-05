@@ -187,6 +187,8 @@ def build_interview_payload(
     job_title: str,
     company: str,
     job_description: str,
+    interview_type: str = "Mixed",
+    number_of_questions: int = 5,
 ) -> dict:
     """Return a JSON-serialisable payload for the interview API."""
     required_fields = {
@@ -197,6 +199,13 @@ def build_interview_payload(
     missing = [label for label, value in required_fields.items() if not value.strip()]
     if missing:
         raise ValueError("Missing required fields: " + ", ".join(missing))
+
+    if not interview_type.strip():
+        raise ValueError("Missing required field: interview type")
+    if isinstance(number_of_questions, bool) or not isinstance(number_of_questions, int):
+        raise ValueError("Number of questions must be a whole number.")
+    if not 1 <= number_of_questions <= 19:
+        raise ValueError("Number of questions must be above 0 and below 20.")
 
     cv_text = extract_pdf_text(cv_pdf)
     anonymised_text, redactions = anonymise_cv_text(cv_text)
@@ -213,6 +222,8 @@ def build_interview_payload(
         "interview_preferences": {
             "answer_mode": "typed",
             "question_delivery": "one_at_a_time",
+            "interview_type": interview_type.strip(),
+            "number_of_questions": number_of_questions,
             "use_follow_up_questions": True,
             "provide_final_report": True,
         },
