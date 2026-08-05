@@ -1,0 +1,322 @@
+{
+  "session_id": "demo-session-001",
+  "candidate": {
+    "name": "Example Candidate",
+    "company": "Lloyds Banking Group",
+    "role": "Data Science and AI Graduate",
+    "interview_type": "Mixed",
+    "cv_summary": "Physics graduate with experience in Python, statistical modelling, data visualisation, research and collaborative technical projects."
+  },
+  "job_requirements": [
+    "Python and data analysis",
+    "Clear communication of technical findings",
+    "Teamwork and stakeholder collaboration",
+    "Problem solving",
+    "Interest in financial services and responsible AI"
+  ],
+  "interview_status": "completed",
+  "lines_of_questioning": [
+    {
+      "line_id": 1,
+      "category": "Motivation and role fit",
+      "main_question": {
+        "question_id": 1,
+        "question": "Why are you interested in joining Lloyds Banking Group as a Data Science and AI graduate?",
+        "reason": "The role requires clear motivation for financial services, data science and the organisation."
+      },
+      "responses": [
+        {
+          "response_id": "1a",
+          "question_type": "main",
+          "question": "Why are you interested in joining Lloyds Banking Group as a Data Science and AI graduate?",
+          "answer": "I want to apply my analytical background to problems that affect a large number of customers. Lloyds appeals to me because it is investing heavily in data and technology, and the graduate scheme would let me develop through different placements.",
+          "evaluation": {
+            "scores": {
+              "relevance": 8,
+              "evidence": 5,
+              "structure": 7,
+              "role_alignment": 8
+            },
+            "overall_score": 7.0,
+            "strengths": [
+              "Directly explains interest in the role",
+              "Connects data science with customer impact",
+              "Shows awareness of the rotational graduate structure"
+            ],
+            "improvements": [
+              "Include a more specific reason for choosing Lloyds",
+              "Link previous experience more clearly to the role"
+            ],
+            "missing_information": [
+              "Specific company knowledge",
+              "Relevant personal experience"
+            ],
+            "ask_follow_up": true,
+            "suggested_follow_up_focus": "Ask for a specific Lloyds initiative and a relevant example from the candidate's background."
+          }
+        },
+        {
+          "response_id": "1b",
+          "question_type": "follow_up",
+          "follow_up_number": 1,
+          "question": "Which aspect of Lloyds' work in data or technology is most relevant to your interests?",
+          "answer": "I am particularly interested in how data can improve operational resilience and customer service. In my degree, I used Python to analyse complex datasets and explain the results clearly, so I would like to apply those skills in a commercial setting.",
+          "evaluation": {
+            "scores": {
+              "relevance": 8,
+              "evidence": 7,
+              "structure": 8,
+              "role_alignment": 8
+            },
+            "overall_score": 7.7,
+            "strengths": [
+              "Links personal technical experience to the role",
+              "Identifies a commercially relevant area",
+              "Provides a clearer explanation of transferable skills"
+            ],
+            "improvements": [
+              "Name a specific Lloyds programme, platform or priority",
+              "Explain the expected business impact in more detail"
+            ],
+            "missing_information": [
+              "Specific company example"
+            ],
+            "ask_follow_up": false,
+            "suggested_follow_up_focus": null
+          }
+        }
+      ],
+      "line_complete": true,
+      "line_summary": {
+        "average_score": 7.35,
+        "strengths": [
+          "Clear motivation for using data in a customer-focused organisation",
+          "Good connection between academic experience and the graduate role"
+        ],
+        "improvements": [
+          "Use more specific company research",
+          "Explain why Lloyds is preferable to other employers"
+        ]
+      }
+    },
+    {
+      "line_id": 2,
+      "category": "Teamwork",
+      "main_question": {
+        "question_id": 2,
+        "question": "Tell me about a time you worked with others to solve a difficult problem.",
+        "reason": "The job description emphasises collaboration across technical and non-technical teams."
+      },
+      "responses": [
+        {
+          "response_id": "2a",
+          "question_type": "main",
+          "question": "Tell me about a time you worked with others to solve a difficult problem.",
+          "answer": "During a university group project, our team had to analyse a large dataset and present the results. We divided the work, met regularly and completed the project successfully.",
+          "evaluation": {
+            "scores": {
+              "relevance": 7,
+              "evidence": 4,
+              "structure": 6,
+              "role_alignment": 6
+            },
+            "overall_score": 5.8,
+            "strengths": [
+              "Provides a relevant teamwork example",
+              "Mentions organisation and regular communication"
+            ],
+            "improvements": [
+              "Explain the candidate's individual contribution",
+              "Describe the difficulty in more detail",
+              "Include a clear and measurable outcome"
+            ],
+            "missing_information": [
+              "Individual contribution",
+              "Specific challenge",
+              "Measurable result"
+            ],
+            "ask_follow_up": true,
+            "suggested_follow_up_focus": "Ask what the candidate personally did and what obstacle the team encountered."
+          }
+        },
+        {
+          "response_id": "2b",
+          "question_type": "follow_up",
+          "follow_up_number": 1,
+          "question": "What was your individual responsibility within the team?",
+          "answer": "I was responsible for cleaning the dataset and writing the Python code used to produce the main visualisations. I also explained the analysis to the rest of the group so that we could agree on the conclusions.",
+          "evaluation": {
+            "scores": {
+              "relevance": 9,
+              "evidence": 8,
+              "structure": 8,
+              "role_alignment": 8
+            },
+            "overall_score": 8.3,
+            "strengths": [
+              "Clearly states individual ownership",
+              "Demonstrates technical and communication skills",
+              "Shows contribution to shared decision making"
+            ],
+            "improvements": [
+              "Add evidence of the scale or complexity of the dataset",
+              "Explain how the work changed the final outcome"
+            ],
+            "missing_information": [
+              "Measurable impact"
+            ],
+            "ask_follow_up": true,
+            "suggested_follow_up_focus": "Ask for the final result and how success was measured."
+          }
+        },
+        {
+          "response_id": "2c",
+          "question_type": "follow_up",
+          "follow_up_number": 2,
+          "question": "What was the final outcome, and how did you know the team had been successful?",
+          "answer": "We delivered the project before the deadline and received a first-class mark. The cleaned dataset also reduced errors in our analysis, and the visualisations were highlighted as one of the strongest parts of the presentation.",
+          "evaluation": {
+            "scores": {
+              "relevance": 9,
+              "evidence": 9,
+              "structure": 8,
+              "role_alignment": 8
+            },
+            "overall_score": 8.6,
+            "strengths": [
+              "Provides a measurable academic outcome",
+              "Explains the impact of the candidate's work",
+              "Completes the example with a clear result"
+            ],
+            "improvements": [
+              "Combine the full example into one concise STAR response"
+            ],
+            "missing_information": [],
+            "ask_follow_up": false,
+            "suggested_follow_up_focus": null
+          }
+        }
+      ],
+      "line_complete": true,
+      "line_summary": {
+        "average_score": 7.57,
+        "strengths": [
+          "Strong technical contribution",
+          "Clear evidence of teamwork and communication",
+          "Good measurable outcome after follow-up questioning"
+        ],
+        "improvements": [
+          "Include the strongest details in the initial answer",
+          "Use the STAR structure without needing repeated prompting"
+        ]
+      }
+    },
+    {
+      "line_id": 3,
+      "category": "Problem solving",
+      "main_question": {
+        "question_id": 3,
+        "question": "Describe a time when your original approach did not work. What did you do next?",
+        "reason": "The role requires adaptability, technical judgement and evidence-based problem solving."
+      },
+      "responses": [
+        {
+          "response_id": "3a",
+          "question_type": "main",
+          "question": "Describe a time when your original approach did not work. What did you do next?",
+          "answer": "In my research project, an early model produced unstable results. I checked the assumptions, reviewed the code and tested smaller cases. I found that the boundary conditions were causing the instability, corrected them and then validated the revised output against expected behaviour.",
+          "evaluation": {
+            "scores": {
+              "relevance": 9,
+              "evidence": 8,
+              "structure": 9,
+              "role_alignment": 9
+            },
+            "overall_score": 8.7,
+            "strengths": [
+              "Explains a genuine technical setback",
+              "Shows a logical diagnostic process",
+              "Demonstrates validation rather than assuming the fix worked"
+            ],
+            "improvements": [
+              "Add a measurable result or final project outcome",
+              "Briefly explain what was learnt and reused later"
+            ],
+            "missing_information": [
+              "Measurable outcome",
+              "Learning applied afterwards"
+            ],
+            "ask_follow_up": true,
+            "suggested_follow_up_focus": "Ask what the candidate learnt and how the fix affected the project."
+          }
+        },
+        {
+          "response_id": "3b",
+          "question_type": "follow_up",
+          "follow_up_number": 1,
+          "question": "What did you learn from that experience, and how did it change your later work?",
+          "answer": "I learnt to test assumptions and boundary conditions on small cases before scaling up. I used that approach for the rest of the project, which made debugging faster and helped me produce a stable final simulation.",
+          "evaluation": {
+            "scores": {
+              "relevance": 9,
+              "evidence": 8,
+              "structure": 9,
+              "role_alignment": 9
+            },
+            "overall_score": 8.7,
+            "strengths": [
+              "Shows clear learning and behavioural change",
+              "Connects the lesson to improved future performance",
+              "Demonstrates a repeatable problem-solving method"
+            ],
+            "improvements": [
+              "Quantify the time saved if possible"
+            ],
+            "missing_information": [],
+            "ask_follow_up": false,
+            "suggested_follow_up_focus": null
+          }
+        }
+      ],
+      "line_complete": true,
+      "line_summary": {
+        "average_score": 8.7,
+        "strengths": [
+          "Strong structured problem-solving process",
+          "Good evidence of reflection and learning",
+          "Highly relevant technical example"
+        ],
+        "improvements": [
+          "Add numerical impact where possible"
+        ]
+      }
+    }
+  ],
+  "aggregate_metrics": {
+    "completed_main_questions": 3,
+    "total_follow_up_questions": 4,
+    "total_responses": 7,
+    "category_averages": {
+      "relevance": 8.43,
+      "evidence": 7.29,
+      "structure": 7.86,
+      "role_alignment": 8.0
+    },
+    "overall_average_score": 7.83
+  },
+  "report_generation_notes": {
+    "expected_sections": [
+      "Overall interview score",
+      "Category score breakdown",
+      "Strongest line of questioning",
+      "Weakest line of questioning",
+      "Recurring strengths",
+      "Recurring development areas",
+      "Three priority improvements",
+      "Interview readiness assessment",
+      "Suggested next steps",
+      "Improved answer examples"
+    ],
+    "important_instruction": "The reporting mechanism should calculate or verify aggregate values from the response evaluations rather than trusting supplied totals blindly."
+  }
+}
