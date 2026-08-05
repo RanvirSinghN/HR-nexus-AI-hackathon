@@ -1,0 +1,22 @@
+Graduate Product Analyst - BrightPath Digital
+
+BrightPath Digital is hiring a Graduate Product Analyst to help teams understand customer behaviour and improve digital products.
+
+Responsibilities
+- Analyse product usage, customer feedback, and operational data to identify opportunities.
+- Write SQL queries and build clear dashboards for product and commercial teams.
+- Define and monitor product metrics with product managers and engineers.
+- Support experiments by documenting hypotheses, success measures, and results.
+- Present recommendations clearly to technical and non-technical stakeholders.
+
+Requirements
+- Strong analytical thinking demonstrated through study, employment, volunteering, or projects.
+- Comfortable working with spreadsheets and at least one data tool such as SQL, Python, or Power BI.
+- Clear written and verbal communication.
+- Ability to organise work, investigate ambiguous problems, and explain assumptions.
+- Interest in digital products and customer experience.
+
+Nice to have
+- Experience creating dashboards or reports.
+- Familiarity with A/B testing, user research, or agile product development.
+- Evidence of teamwork and taking ownership of an improvement.

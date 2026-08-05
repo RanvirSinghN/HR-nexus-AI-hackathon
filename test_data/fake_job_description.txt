@@ -1,0 +1,21 @@
+Junior Data Engineer - Prototype Ltd
+
+Prototype Ltd is looking for a Junior Data Engineer to help build reliable data products for internal teams.
+
+Responsibilities
+- Build and maintain Python data pipelines for operational and product datasets.
+- Write clear SQL transformations and validation checks.
+- Develop lightweight dashboards that communicate findings to non-technical stakeholders.
+- Investigate data quality issues and document fixes.
+- Work with analysts, engineers, and product managers to define useful metrics.
+
+Requirements
+- Practical Python and SQL experience from employment, internships, or substantial projects.
+- Understanding of data cleaning, testing, and reproducible workflows.
+- Ability to explain technical decisions clearly.
+- Evidence of ownership, teamwork, and continuous improvement.
+
+Nice to have
+- Streamlit or another dashboard framework.
+- Git, cloud platforms, or automated testing.
+- Exposure to forecasting or machine learning projects.
